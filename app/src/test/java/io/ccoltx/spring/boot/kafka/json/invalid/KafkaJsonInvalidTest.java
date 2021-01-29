@@ -1,5 +1,6 @@
-package io.ccoltx.spring.boot.kafka.string;
+package io.ccoltx.spring.boot.kafka.json.invalid;
 
+import io.ccoltx.spring.boot.kafka.json.invalid.data.TestObject;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -20,46 +21,48 @@ import org.springframework.test.context.DynamicPropertySource;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @Testcontainers
-@ActiveProfiles("kafka-string")
-class ScenarioOneTest {
+@ActiveProfiles("kafka-json")
+class KafkaJsonInvalidTest {
 
     @Container
     private static final KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:5.4.3"));
 
     @Autowired
-    private StringProducer producer;
+    private JsonProducer<TestObject> producer;
 
     @SpyBean
-    private StringConsumer consumer;
+    private JsonConsumer<TestObject> consumer;
 
     @Value("${test.topic:test-topic}")
     private String topic;
+
+    @Captor
+    private ArgumentCaptor<ConsumerRecord<String, TestObject>> argumentCaptor;
 
     @DynamicPropertySource
     static void kafkaProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
     }
 
-    @Captor
-    private ArgumentCaptor<ConsumerRecord<String, String>> argumentCaptor;
-
     @Test
-    void testSendingString() {
+    void testError() {
 
-        String testMsg = "Sending a message from ScenarioStringTest";
+        TestObject testObj = TestObject.builder().value1("Test value 1").value2(99).build();
 
-        producer.send(topic, testMsg);
+        producer.send(topic, testObj);
+
+        await().atMost(5, SECONDS).untilAsserted(() -> assertThat(JsonConsumer.count.get()).isEqualTo(1));
+
 
         // Verify the consumer's KafkaListener was called at all
-        await().atMost(1, SECONDS).untilAsserted(() -> verify(consumer).listen(argumentCaptor.capture()));
+        verify(consumer).listen(argumentCaptor.capture());
 
         // Verify the test message was received
-        assertThat(argumentCaptor.getValue().value()).isEqualTo(testMsg);
+        assertThat(argumentCaptor.getValue().value()).isEqualTo(testObj);
     }
 
 }
