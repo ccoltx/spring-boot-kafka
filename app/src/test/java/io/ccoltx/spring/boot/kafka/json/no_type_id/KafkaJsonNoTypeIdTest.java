@@ -4,6 +4,7 @@ import io.ccoltx.spring.boot.kafka.json.no_type_id.data.TestObject;
 import io.ccoltx.spring.boot.kafka.json.no_type_id.data.v1.TestObjectV1;
 import io.ccoltx.spring.boot.kafka.json.no_type_id.data.v2.TestObjectV2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("kafka-json-notypeid")
+@Disabled("Until I have time to complete the test")
 class KafkaJsonNoTypeIdTest {
 
     @Container

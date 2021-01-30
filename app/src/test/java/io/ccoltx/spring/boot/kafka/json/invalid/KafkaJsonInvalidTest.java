@@ -2,6 +2,7 @@ package io.ccoltx.spring.boot.kafka.json.invalid;
 
 import io.ccoltx.spring.boot.kafka.json.invalid.data.TestObject;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("kafka-json")
+@Disabled("Until https://github.com/spring-projects/spring-boot/issues/25034 is fixed")
 class KafkaJsonInvalidTest {
 
     @Container
